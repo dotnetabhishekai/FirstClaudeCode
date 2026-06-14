@@ -1,0 +1,21 @@
+Date,Region,Product,Category,UnitsSold,Revenue,InStock
+2024-01-05,North,Widget A,Electronics,120,2400.50,true
+2024-01-12,South,Widget B,Electronics,85,1700.00,true
+2024-01-19,East,Widget C,Home,60,900.75,false
+2024-01-26,West,Widget A,Electronics,150,3000.00,true
+2024-02-02,North,Widget D,Office,200,2500.00,true
+2024-02-09,South,Widget A,Electronics,95,1900.00,false
+2024-02-16,East,Widget B,Electronics,110,2200.00,true
+2024-02-23,West,Widget C,Home,75,1125.00,true
+2024-03-01,North,Widget E,Office,130,1820.00,true
+2024-03-08,South,Widget D,Office,140,1750.00,false
+2024-03-15,East,Widget A,Electronics,160,3200.00,true
+2024-03-22,West,Widget B,Electronics,90,1800.00,true
+2024-03-29,North,Widget C,Home,55,825.00,true
+2024-04-05,South,Widget E,Office,175,2450.00,true
+2024-04-12,East,Widget D,Office,115,1437.50,false
+2024-04-19,West,Widget A,Electronics,185,3700.00,true
+2024-04-26,North,Widget B,Electronics,100,2000.00,true
+2024-05-03,South,Widget C,Home,65,975.00,true
+2024-05-10,East,Widget E,Office,145,2030.00,true
+2024-05-17,West,Widget D,Office,125,1562.50,false

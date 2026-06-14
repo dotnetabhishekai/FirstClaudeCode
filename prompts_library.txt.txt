@@ -1,0 +1,34 @@
+1. Bookmark Manager
+Save links with notes and categories — your own organized reading list beyond browser bookmarks.
+COPY-PASTE THIS PROMPT INTO CLAUDE CODE:
+Build a bookmark manager as a single HTML file. I want to save URLs with a title,
+short note, and category tags. Show bookmarks as cards organized by category.
+Include search and filter by tag. Add a "read later" vs "read" status toggle. Modern
+card-based UI. Store in browser storage.
+
+2. Client Invoice Generator
+Generate professional PDF invoices with your business details, line items, tax calculations, and payment
+terms.
+COPY-PASTE THIS PROMPT INTO CLAUDE CODE:
+Build an invoice generator as a single HTML file. I want to enter my business name,
+client details, line items (description, quantity, rate), tax rate, and payment
+terms. It should calculate totals automatically and generate a clean, professional
+invoice I can print or save as PDF. Include invoice numbering.
+
+3. Snake Game
+The classic Snake game — eat food, grow longer, don't hit yourself or the walls.
+COPY-PASTE THIS PROMPT INTO CLAUDE CODE:
+Create the classic Snake game as a single HTML file. Arrow keys to move, eat food to
+grow, avoid walls and yourself. Include: score display, high score tracking, 3 speed
+levels, a pause button, and a game-over screen with restart. Make the snake smooth
+(not choppy). Add subtle particle effects when eating food. Retro neon green theme
+on dark background. Touch controls for mobile.
+
+4. CSV Data Visualizer
+Upload a CSV file and instantly see your data as interactive charts and summary statistics.
+COPY-PASTE THIS PROMPT INTO CLAUDE CODE:
+Build a CSV data visualizer as a single HTML file. I drag-and-drop or upload a CSV
+file. It should: detect columns and data types, show a preview table, let me pick X
+and Y axes, and generate bar charts, line charts, and pie charts. Include basic
+stats (count, average, min, max) per column. Use Chart.js for charts. Clean
+dashboard layout.

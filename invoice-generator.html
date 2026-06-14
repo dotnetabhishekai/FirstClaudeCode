@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --border: #d1d5db;
+    --bg: #f3f4f6;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+  }
+  .app {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 1000px) {
+    .app { grid-template-columns: 420px 1fr; }
+  }
+  .panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  h1 { font-size: 22px; margin-top: 0; }
+  h2 { font-size: 16px; margin: 18px 0 8px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+    color: #4b5563;
+  }
+  input, textarea, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+
+  .items-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .items-table th { font-size: 11px; text-transform: uppercase; color: #6b7280; text-align: left; padding: 4px; }
+  .items-table td { padding: 4px; }
+  .items-table input { font-size: 13px; padding: 6px 8px; }
+  .qty-rate { width: 70px; }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+  .add-btn, .print-btn {
+    margin-top: 10px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .add-btn { background: #e5e7eb; color: var(--text); }
+  .print-btn { width: 100%; margin-top: 20px; font-size: 15px; }
+  .add-btn:hover { background: #d1d5db; }
+  .print-btn:hover { background: #1d4ed8; }
+
+  /* Invoice preview */
+  .invoice {
+    background: #fff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-height: 600px;
+  }
+  .invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .invoice-header h1 { color: var(--primary); margin: 0; font-size: 32px; letter-spacing: 1px; }
+  .invoice-meta { text-align: right; font-size: 13px; }
+  .invoice-meta div { margin-bottom: 2px; }
+  .biz-name { font-size: 18px; font-weight: 700; }
+  .addr-block { font-size: 13px; white-space: pre-line; color: #4b5563; margin-top: 4px; }
+  .parties { display: flex; justify-content: space-between; margin-bottom: 30px; gap: 20px; }
+  .parties .block { flex: 1; }
+  .parties h3 { font-size: 11px; text-transform: uppercase; color: #9ca3af; margin: 0 0 6px; }
+
+  table.invoice-items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  table.invoice-items th {
+    background: var(--primary);
+    color: #fff;
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  table.invoice-items th:last-child, table.invoice-items td:last-child,
+  table.invoice-items th:nth-child(2), table.invoice-items td:nth-child(2),
+  table.invoice-items th:nth-child(3), table.invoice-items td:nth-child(3) {
+    text-align: right;
+  }
+  table.invoice-items td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 13px;
+  }
+
+  .totals { display: flex; justify-content: flex-end; }
+  .totals table { font-size: 14px; }
+  .totals td { padding: 4px 12px; }
+  .totals td:first-child { text-align: right; color: #6b7280; }
+  .totals td:last-child { text-align: right; font-weight: 600; }
+  .totals .grand-total td { border-top: 2px solid var(--primary); font-size: 17px; font-weight: 700; color: var(--primary); padding-top: 8px; }
+
+  .terms-box { margin-top: 30px; font-size: 13px; color: #4b5563; }
+  .terms-box h3 { font-size: 11px; text-transform: uppercase; color: #9ca3af; margin: 0 0 6px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .panel { display: none; }
+    .app { grid-template-columns: 1fr; }
+    .invoice { box-shadow: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1>Invoice Generator <span class="brand">by DotnetAbhishekAI</span></h1>
+
+    <h2>Invoice Info</h2>
+    <div class="row">
+      <div>
+        <label>Invoice Number</label>
+        <input type="text" id="invoiceNumber" value="INV-0001">
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="invoiceDate">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Due Date</label>
+        <input type="date" id="dueDate">
+      </div>
+      <div></div>
+    </div>
+
+    <h2>Your Business</h2>
+    <label>Business Name</label>
+    <input type="text" id="businessName" placeholder="Acme Co.">
+    <label>Address / Contact</label>
+    <textarea id="businessAddress" rows="3" placeholder="123 Main St&#10;City, State ZIP&#10;email@example.com"></textarea>
+
+    <h2>Client</h2>
+    <label>Client Name</label>
+    <input type="text" id="clientName" placeholder="Client Inc.">
+    <label>Client Address / Contact</label>
+    <textarea id="clientAddress" rows="3" placeholder="456 Other St&#10;City, State ZIP"></textarea>
+
+    <h2>Line Items</h2>
+    <table class="items-table" id="itemsTable">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    <button class="add-btn" onclick="addItem()">+ Add Line Item</button>
+
+    <h2>Tax &amp; Terms</h2>
+    <label>Tax Rate (%)</label>
+    <input type="number" id="taxRate" value="0" step="0.01" min="0">
+    <label>Payment Terms / Notes</label>
+    <textarea id="paymentTerms" rows="3" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
+
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="invoice" id="invoicePreview">
+    <div class="invoice-header">
+      <div>
+        <h1>INVOICE</h1>
+        <div class="biz-name" id="prevBusinessName">Your Business Name</div>
+        <div class="addr-block" id="prevBusinessAddress"></div>
+      </div>
+      <div class="invoice-meta">
+        <div><strong>Invoice #:</strong> <span id="prevInvoiceNumber">INV-0001</span></div>
+        <div><strong>Date:</strong> <span id="prevInvoiceDate"></span></div>
+        <div><strong>Due Date:</strong> <span id="prevDueDate"></span></div>
+      </div>
+    </div>
+
+    <div class="parties">
+      <div class="block">
+        <h3>Bill To</h3>
+        <div id="prevClientName">Client Name</div>
+        <div class="addr-block" id="prevClientAddress"></div>
+      </div>
+    </div>
+
+    <table class="invoice-items">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="prevItemsBody"></tbody>
+    </table>
+
+    <div class="totals">
+      <table>
+        <tr>
+          <td>Subtotal</td>
+          <td id="prevSubtotal">$0.00</td>
+        </tr>
+        <tr>
+          <td id="prevTaxLabel">Tax (0%)</td>
+          <td id="prevTax">$0.00</td>
+        </tr>
+        <tr class="grand-total">
+          <td>Total</td>
+          <td id="prevTotal">$0.00</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="terms-box" id="prevTermsBox" style="display:none;">
+      <h3>Payment Terms</h3>
+      <div id="prevTerms"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let itemIdCounter = 0;
+
+function addItem(description = '', qty = 1, rate = 0) {
+  const id = itemIdCounter++;
+  const tbody = document.getElementById('itemsBody');
+  const tr = document.createElement('tr');
+  tr.dataset.id = id;
+  tr.innerHTML = `
+    <td><input type="text" class="item-desc" placeholder="Item description" value="${escapeAttr(description)}"></td>
+    <td><input type="number" class="item-qty qty-rate" min="0" step="1" value="${qty}"></td>
+    <td><input type="number" class="item-rate qty-rate" min="0" step="0.01" value="${rate}"></td>
+    <td><button class="remove-btn" onclick="removeItem(this)">&times;</button></td>
+  `;
+  tbody.appendChild(tr);
+  attachListeners(tr);
+  update();
+}
+
+function removeItem(btn) {
+  btn.closest('tr').remove();
+  update();
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function formatCurrency(n) {
+  return '$' + n.toFixed(2);
+}
+
+function attachListeners(scope) {
+  scope.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', update);
+  });
+}
+
+function update() {
+  document.getElementById('prevBusinessName').textContent =
+    document.getElementById('businessName').value || 'Your Business Name';
+  document.getElementById('prevBusinessAddress').textContent =
+    document.getElementById('businessAddress').value;
+
+  document.getElementById('prevClientName').textContent =
+    document.getElementById('clientName').value || 'Client Name';
+  document.getElementById('prevClientAddress').textContent =
+    document.getElementById('clientAddress').value;
+
+  document.getElementById('prevInvoiceNumber').textContent =
+    document.getElementById('invoiceNumber').value || '—';
+
+  const invDate = document.getElementById('invoiceDate').value;
+  const dueDate = document.getElementById('dueDate').value;
+  document.getElementById('prevInvoiceDate').textContent = formatDate(invDate);
+  document.getElementById('prevDueDate').textContent = formatDate(dueDate);
+
+  const prevItemsBody = document.getElementById('prevItemsBody');
+  prevItemsBody.innerHTML = '';
+  let subtotal = 0;
+
+  document.querySelectorAll('#itemsBody tr').forEach(tr => {
+    const desc = tr.querySelector('.item-desc').value;
+    const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
+    const rate = parseFloat(tr.querySelector('.item-rate').value) || 0;
+    const amount = qty * rate;
+    subtotal += amount;
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${escapeHtml(desc) || '&nbsp;'}</td>
+      <td>${qty}</td>
+      <td>${formatCurrency(rate)}</td>
+      <td>${formatCurrency(amount)}</td>
+    `;
+    prevItemsBody.appendChild(row);
+  });
+
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+  const total = subtotal + taxAmount;
+
+  document.getElementById('prevSubtotal').textContent = formatCurrency(subtotal);
+  document.getElementById('prevTaxLabel').textContent = `Tax (${taxRate}%)`;
+  document.getElementById('prevTax').textContent = formatCurrency(taxAmount);
+  document.getElementById('prevTotal').textContent = formatCurrency(total);
+
+  const terms = document.getElementById('paymentTerms').value;
+  const termsBox = document.getElementById('prevTermsBox');
+  if (terms.trim()) {
+    termsBox.style.display = 'block';
+    document.getElementById('prevTerms').textContent = terms;
+  } else {
+    termsBox.style.display = 'none';
+  }
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const [y, m, d] = value.split('-');
+  return `${m}/${d}/${y}`;
+}
+
+function init() {
+  const today = new Date();
+  const due = new Date();
+  due.setDate(due.getDate() + 30);
+  document.getElementById('invoiceDate').value = today.toISOString().slice(0, 10);
+  document.getElementById('dueDate').value = due.toISOString().slice(0, 10);
+  document.getElementById('paymentTerms').value = 'Payment due within 30 days. Thank you for your business!';
+
+  addItem('Service / product description', 1, 0);
+
+  attachListeners(document.querySelector('.panel'));
+  update();
+}
+
+init();
+</script>
+</body>
+</html>
